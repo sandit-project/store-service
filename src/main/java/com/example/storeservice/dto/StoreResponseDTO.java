@@ -11,6 +11,7 @@ public class StoreResponseDTO {
     private Long    uid;
     private String  storeName;
     private String  storeAddress;
+    private String  storeAddressDetail;
     private String  storePostcode;
     private Double  storeLatitude;
     private Double  storeLongitude;

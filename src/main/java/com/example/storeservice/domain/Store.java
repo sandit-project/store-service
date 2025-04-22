@@ -33,6 +33,10 @@ public class Store {
         @Column(name = "address")
         private String storeAddress;
 
+        @NotBlank(message = "the addressDetail must be defined.")
+        @Column(name = "address_detail")
+        private String storeAddressDetail;
+
         @NotNull(message = "the postcode must be defined.")
         @Column(name = "postcode")
         private String storePostcode;

@@ -7,6 +7,7 @@ import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.service.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class StoreApiController {
 
     //지점 추가
     @PostMapping
-    public StoreResponseDTO addStore(@Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
+    public StoreResponseDTO addStore(@Valid @RequestBody  StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
         return storeService.addStore(storeRequestDTO);
     }
     //지점 수정

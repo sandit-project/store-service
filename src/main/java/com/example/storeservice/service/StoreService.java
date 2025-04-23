@@ -74,9 +74,9 @@ public class StoreService {
                 .storeName(storeRequestDTO.getStoreName())
                 .storeAddress(storeRequestDTO.getStoreAddress())
                 .storePostcode(storeRequestDTO.getStorePostcode())
-                .storeStatus(storeRequestDTO.getStoreStatus())
                 .storeLatitude(storeRequestDTO.getStoreLatitude())
                 .storeLongitude(storeRequestDTO.getStoreLongitude())
+                .storeStatus(storeRequestDTO.getStoreStatus())
                 .build();
 
         Store saveStore = storeRepository.save(store);//DB에 저장해 줌.

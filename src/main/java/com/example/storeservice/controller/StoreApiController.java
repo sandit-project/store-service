@@ -1,6 +1,7 @@
 package com.example.storeservice.controller;
 
 import com.example.storeservice.dto.StoreListResponseDTO;
+import com.example.storeservice.dto.StoreOrderListResponseDTO;
 import com.example.storeservice.dto.StoreRequestDTO;
 import com.example.storeservice.dto.StoreResponseDTO;
 import com.example.storeservice.exception.StoreAlreadyExistsException;

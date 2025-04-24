@@ -1,9 +1,7 @@
 package com.example.storeservice.service;
 
 import com.example.storeservice.domain.Store;
-import com.example.storeservice.dto.StoreListResponseDTO;
-import com.example.storeservice.dto.StoreRequestDTO;
-import com.example.storeservice.dto.StoreResponseDTO;
+import com.example.storeservice.dto.*;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.exception.StoreNotFoundException;
 import com.example.storeservice.repository.StoreRepository;
@@ -20,7 +18,6 @@ import java.util.stream.Collectors;
 public class StoreService {
 
     private final StoreRepository storeRepository;
-
 
     //지점 목록 조회(커서방식)
     @Transactional
@@ -120,6 +117,7 @@ public class StoreService {
         }
         storeRepository.deleteByUid(uid);
     }
+
 }
 
 

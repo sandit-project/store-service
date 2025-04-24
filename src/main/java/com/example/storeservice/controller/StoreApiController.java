@@ -42,9 +42,10 @@ public class StoreApiController {
     }
     //지점 수정
     @PutMapping("/{uid}")
-    public  StoreResponseDTO updateStore(@PathVariable(name="uid") Long uid,
+    public  ResponseEntity<StoreResponseDTO> updateStore(@PathVariable(name="uid") Long uid,
                                          @Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException {
-        return storeService.updateStore(uid, storeRequestDTO);
+        StoreResponseDTO response = storeService.updateStore(uid,storeRequestDTO);
+        return ResponseEntity.ok(response);
     }
     //지점 삭제
     @DeleteMapping("/{uid}")

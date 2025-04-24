@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -51,7 +52,7 @@ public class Store {
 
         @CreatedDate
         @Column(name = "created_date", updatable = false)
-        private Instant storeCreatedDate;
+        private LocalDateTime storeCreatedDate;
 
         @Version
         private int version;

@@ -94,6 +94,8 @@ public class StoreService {
                 .storeName(storeRequestDTO.getStoreName())
                 .storeAddress(storeRequestDTO.getStoreAddress())
                 .storePostcode(storeRequestDTO.getStorePostcode())
+                .storeLatitude(storeRequestDTO.getStoreLatitude())
+                .storeLongitude(storeRequestDTO.getStoreLongitude())
                 .storeStatus(storeRequestDTO.getStoreStatus())
                 .storeCreatedDate(existingStore.getStoreCreatedDate())
                 .version(existingStore.getVersion())//버전 증가

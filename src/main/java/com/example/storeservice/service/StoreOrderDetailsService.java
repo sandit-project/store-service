@@ -1,0 +1,16 @@
+package com.example.storeservice.service;
+
+import com.example.storeservice.dto.StoreOrderDetailsDTO;
+import com.example.storeservice.dto.StoreOrderListResponseDTO;
+
+public interface StoreOrderDetailsService {
+    /**
+     * 샘플 주문 상세 정보 반환
+     * @param orderUid 테스트용으로 전달받을 주문 ID (사용자 지정)
+     * @return 샘플 StoreOrderDetailsDTO
+     */
+    StoreOrderDetailsDTO getSampleOrderDetail(Integer orderUid);
+
+    //목록 조회용 메서드
+    StoreOrderListResponseDTO getStoreOrdersByCurcor(int limit, Long lastUid);
+}

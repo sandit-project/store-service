@@ -1,0 +1,33 @@
+package com.example.storeservice.controller;
+
+import com.example.storeservice.dto.StoreOrderDetailsDTO;
+import com.example.storeservice.dto.StoreOrderListResponseDTO;
+import com.example.storeservice.service.StoreOrderDetailsService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/stores/test/orders")
+@RequiredArgsConstructor
+public class StoreOrderDetailsController {
+
+    private final StoreOrderDetailsService sampleService;
+
+    /**
+     * 테스트용 샘플 주문 상세 조회
+     * GET /api/orders/sample/123
+     */
+    @GetMapping("/sample/{uid}")
+    public ResponseEntity<StoreOrderDetailsDTO> getSampleOrder(@PathVariable("uid") Integer uid) {
+        StoreOrderDetailsDTO dto = sampleService.getSampleOrderDetail(uid);
+        return ResponseEntity.ok(dto);
+    }
+    //지점 주문 목록 조회
+    @GetMapping("/list")
+    public StoreOrderListResponseDTO storeOrderList(@RequestParam(defaultValue = "10") int limit,
+                                                    @RequestParam(required = false) Long lastUid){
+        // 주문 목록 가져오기
+        return sampleService.getStoreOrdersByCurcor(limit,lastUid);
+    }
+}

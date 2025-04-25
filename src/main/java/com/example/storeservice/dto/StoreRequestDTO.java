@@ -14,6 +14,9 @@ public class StoreRequestDTO {
     @NotBlank(message = "지점명을 입력해주세요.")
     private String storeName;
 
+    @NotNull(message = "매니저 uid를 입력해주세요.")
+    private Long managerUid;
+
     @NotBlank(message = "주소를 입력해주세요.")
     private String storeAddress;
 

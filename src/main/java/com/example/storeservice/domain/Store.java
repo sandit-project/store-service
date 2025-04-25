@@ -23,11 +23,16 @@ import java.time.LocalDateTime;
 public class Store {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long uid;
+        @Column(name = "uid")
+        private Long storeUid;
 
         @NotBlank(message = "the store name must be defined.")
         @Column(name = "store_name")
         private String storeName;
+
+        @NotNull(message = "the manager uid must be defined.")
+        @Column(name = "user_uid")
+        private Long managerUid;
 
         @NotBlank(message = "the address must be defined.")
         @Column(name = "address")
@@ -59,8 +64,9 @@ public class Store {
         // Store -> StoreResponseDTO 변환 메서드
         public StoreResponseDTO toStoreResponseDTO () {
                 return StoreResponseDTO.builder()
-                        .uid(this.getUid())
+                        .storeUid(this.getStoreUid())
                         .storeName(this.getStoreName())
+                        .managerUid(this.getManagerUid())
                         .storeAddress(this.getStoreAddress())
                         .storePostcode(this.getStorePostcode())
                         .storeLatitude(this.getStoreLatitude())

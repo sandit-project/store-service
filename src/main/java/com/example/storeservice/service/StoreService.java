@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +43,7 @@ public class StoreService {
         boolean lastPage = stores.size() < limit;
 
         //nextCursor 계산:마지막 요소의 uid를 nextCursor로 설정
-        Long nextCursor = stores.isEmpty() ? null : stores.get(stores.size() - 1).getUid();
+        Long nextCursor = stores.isEmpty() ? null : stores.get(stores.size() - 1).getStoreUid();
 
 
         return StoreListResponseDTO.builder()
@@ -55,10 +56,18 @@ public class StoreService {
     }
 
     // 지점 이름으로 지점 조회
-    public StoreResponseDTO viewStore(Long uid) {
-        Store store = storeRepository.findByUid(uid)
-                .orElseThrow(() -> new StoreNotFoundException(uid));
+    public StoreResponseDTO viewStore(Long storeUid) throws StoreNotFoundException {
+        Store store = storeRepository.findByStoreUid(storeUid)
+                .orElseThrow(() -> new StoreNotFoundException(storeUid));
         return store.toStoreResponseDTO();
+    }
+
+    // 매니저 UID로 지점 UID조회
+    public Long getStoreUidByManagerUid(Long managerUid) {
+        return storeRepository
+                .findByManagerUid(managerUid)
+                .orElseThrow(()->new NoSuchElementException("매니저 UID에 해당하는 UID를 찾을 수가 없습니다. "))
+                .getStoreUid();
     }
 
     //지점 추가
@@ -69,6 +78,7 @@ public class StoreService {
 
         Store store = Store.builder()
                 .storeName(storeRequestDTO.getStoreName())
+                .managerUid(storeRequestDTO.getManagerUid())
                 .storeAddress(storeRequestDTO.getStoreAddress())
                 .storePostcode(storeRequestDTO.getStorePostcode())
                 .storeLatitude(storeRequestDTO.getStoreLatitude())
@@ -82,13 +92,14 @@ public class StoreService {
 
     //지점 수정
     @Transactional
-    public StoreResponseDTO updateStore(Long uid, StoreRequestDTO storeRequestDTO) throws StoreNotFoundException {
-        Store existingStore = storeRepository.findByUid(uid)
-                .orElseThrow(() -> new StoreNotFoundException(uid));
+    public StoreResponseDTO updateStore(Long storeUid, StoreRequestDTO storeRequestDTO) throws StoreNotFoundException {
+        Store existingStore = storeRepository.findByStoreUid(storeUid)
+                .orElseThrow(() -> new StoreNotFoundException(storeUid));
 
         Store updateStore = Store.builder()
-                .uid(existingStore.getUid())
+                .storeUid(existingStore.getStoreUid())
                 .storeName(storeRequestDTO.getStoreName())
+                .managerUid(storeRequestDTO.getManagerUid())
                 .storeAddress(storeRequestDTO.getStoreAddress())
                 .storePostcode(storeRequestDTO.getStorePostcode())
                 .storeLatitude(storeRequestDTO.getStoreLatitude())
@@ -103,19 +114,19 @@ public class StoreService {
     }
 
     //지점 상태 변경
-    public void updateStatusStore (Long uid, String status) throws StoreNotFoundException {
-        if (!storeRepository.existsById(uid)) {
-            throw new StoreNotFoundException(uid);
+    public void updateStatusStore (Long storeUid, String status) throws StoreNotFoundException {
+        if (!storeRepository.existsById(storeUid)) {
+            throw new StoreNotFoundException(storeUid);
         }
-        storeRepository.updateStatusByUid(uid, status);
+        storeRepository.updateStatusByUid(storeUid, status);
     }
 
     //지점 삭제
-    public void deleteStore (Long uid){
-        if (!storeRepository.existsById(uid)) {
-            throw new StoreNotFoundException(uid);
+    public void deleteStore (Long storeUid){
+        if (!storeRepository.existsById(storeUid)) {
+            throw new StoreNotFoundException(storeUid);
         }
-        storeRepository.deleteByUid(uid);
+        storeRepository.deleteByUid(storeUid);
     }
 
 }

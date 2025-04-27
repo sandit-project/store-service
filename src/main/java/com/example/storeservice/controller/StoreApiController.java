@@ -1,9 +1,9 @@
 package com.example.storeservice.controller;
 
 import com.example.storeservice.dto.StoreListResponseDTO;
-import com.example.storeservice.dto.StoreOrderListResponseDTO;
 import com.example.storeservice.dto.StoreRequestDTO;
 import com.example.storeservice.dto.StoreResponseDTO;
+import com.example.storeservice.dto.StoreUidResponseDTO;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.service.StoreService;
 import jakarta.validation.Valid;
@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +36,18 @@ public class StoreApiController {
     @GetMapping("/{uid}")
     public StoreResponseDTO getStore(@PathVariable(name="uid") Long uid) {
         return storeService.viewStore(uid);
+    }
+
+    /**
+     * 매니저 UID 로 해당 지점 UID 반환
+     * GET /stores/storeUid?managerUid=123
+     */
+    @GetMapping("/storeUid")
+    public StoreUidResponseDTO getStoreUidByManagerUid(@RequestParam(name = "managerUid") Long managerUid) {
+        Long storeUid = storeService.getStoreUidByManagerUid(managerUid);
+        return StoreUidResponseDTO.builder()
+                .storeUid(storeUid)
+                .build();
     }
 
     //지점 추가

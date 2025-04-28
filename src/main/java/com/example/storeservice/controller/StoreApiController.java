@@ -33,20 +33,22 @@ public class StoreApiController {
     }
 
     //지점 uid로 지점 조회
-    @GetMapping("/{uid}")
-    public StoreResponseDTO getStore(@PathVariable(name="uid") Long uid) {
-        return storeService.viewStore(uid);
+    @GetMapping("/{storeUid}")
+    public StoreResponseDTO getStore(@PathVariable(name="storeUid") Long storeUid) {
+        return storeService.viewStore(storeUid);
     }
 
     /**
-     * 매니저 UID 로 해당 지점 UID 반환
+     * 매니저 UID 로 해당 지점 UID,storeName 반환
      * GET /stores/storeUid?managerUid=123
      */
     @GetMapping("/storeUid")
     public StoreUidResponseDTO getStoreUidByManagerUid(@RequestParam(name = "managerUid") Long managerUid) {
         Long storeUid = storeService.getStoreUidByManagerUid(managerUid);
+        String storeName = storeService.viewStore(storeUid).getStoreName();
         return StoreUidResponseDTO.builder()
                 .storeUid(storeUid)
+                .storeName(storeName)
                 .build();
     }
 
@@ -56,22 +58,22 @@ public class StoreApiController {
         return storeService.addStore(storeRequestDTO);
     }
     //지점 수정
-    @PutMapping("/{uid}")
-    public  ResponseEntity<StoreResponseDTO> updateStore(@PathVariable(name="uid") Long uid,
+    @PutMapping("/{storeUid}")
+    public  ResponseEntity<StoreResponseDTO> updateStore(@PathVariable(name="storeUid") Long storeUid,
                                          @Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException {
-        StoreResponseDTO response = storeService.updateStore(uid,storeRequestDTO);
+        StoreResponseDTO response = storeService.updateStore(storeUid,storeRequestDTO);
         return ResponseEntity.ok(response);
     }
     //지점 삭제
-    @DeleteMapping("/{uid}")
-    public void deleteStore(@PathVariable("uid") Long uid) {
-        storeService.deleteStore(uid);
+    @DeleteMapping("/{storeUid}")
+    public void deleteStore(@PathVariable("storeUid") Long storeUid) {
+        storeService.deleteStore(storeUid);
     }
 
     //지점 상태 업데이트
-    @PatchMapping("/{uid}")
-    public void updateStatusByUid(@PathVariable("uid") Long uid, @RequestParam("storeStatus") String storeStatus) {
-        storeService.updateStatusStore(uid, storeStatus);
+    @PatchMapping("/{storeUid}")
+    public void updateStatusByUid(@PathVariable("storeUid") Long storeUid, @RequestParam("storeStatus") String storeStatus) {
+        storeService.updateStatusStore(storeUid, storeStatus);
     }
 
 }

@@ -35,11 +35,11 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     boolean existsByStoreName(String storeName);
 
     // 처음 페이지 조회:UID오른차순 정렬 후 limit 개수만큰 조회
-    @Query(value = "SELECT ROW_NUMBER() OVER (ORDER BY uid) AS row_num, uid,store_name,user_uid,address,postcode,status,created_date,version,latitude,longitude FROM store ORDER BY uid ASC LIMIT :limit", nativeQuery = true)
+    @Query(value = "SELECT ROW_NUMBER() OVER (ORDER BY uid) AS row_num,uid,store_name,user_uid,address,postcode,status,created_date,version,latitude,longitude FROM store ORDER BY uid ASC LIMIT :limit", nativeQuery = true)
     List<Store>  findFirstByOrderByUidAsc(@Param("limit") int limit);
 
     // 이후 페이지 조회:주어진 UID 이후 데이터 LIMIT 개수만 조회
-    @Query(value = "SELECT ROW_NUMBER() OVER (ORDER BY uid) AS row_num, uid,store_name,user_uid,address,postcode,status,created_date,version,latitude,longitude FROM store WHERE uid > :lastUid ORDER BY uid ASC LIMIT :limit", nativeQuery = true)
+    @Query(value = "SELECT ROW_NUMBER() OVER (ORDER BY uid) AS row_num,uid,store_name,user_uid,address,postcode,status,created_date,version,latitude,longitude FROM store WHERE uid > :lastUid ORDER BY uid ASC LIMIT :limit", nativeQuery = true)
     List<Store>  findByUidGreaterThanOrderByUidAsc(@Param("lastUid") Long lastUid,@Param("limit") int limit) ;
 
 

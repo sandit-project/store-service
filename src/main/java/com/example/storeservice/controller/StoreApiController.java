@@ -1,9 +1,6 @@
 package com.example.storeservice.controller;
 
-import com.example.storeservice.dto.StoreListResponseDTO;
-import com.example.storeservice.dto.StoreRequestDTO;
-import com.example.storeservice.dto.StoreResponseDTO;
-import com.example.storeservice.dto.StoreUidResponseDTO;
+import com.example.storeservice.dto.*;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.service.StoreService;
 import jakarta.validation.Valid;
@@ -76,4 +73,8 @@ public class StoreApiController {
         storeService.updateStatusStore(storeUid, storeStatus);
     }
 
+    @GetMapping("/orders/{action}")
+    public RabbitResponseDTO remoteOrder(@PathVariable(name = "action") String action) {
+        return storeService.remoteOrderInQueue(action);
+    }
 }

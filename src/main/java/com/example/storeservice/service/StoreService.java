@@ -2,10 +2,15 @@ package com.example.storeservice.service;
 
 import com.example.storeservice.domain.Store;
 import com.example.storeservice.dto.*;
+import com.example.storeservice.event.OrderCreatedMessage;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.exception.StoreNotFoundException;
 import com.example.storeservice.repository.StoreRepository;
+import com.example.storeservice.type.OrderStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,11 +19,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StoreService {
 
     private final StoreRepository storeRepository;
+    private final RabbitTemplate rabbitTemplate; // RabbitMQ 직접 접근용
+    private final ObjectMapper objectMapper;
 
     //지점 목록 조회(커서방식)
     @Transactional
@@ -129,6 +137,90 @@ public class StoreService {
         storeRepository.deleteByUid(storeUid);
     }
 
+    // 주문 조작 함수
+    public RabbitResponseDTO remoteOrderInQueue(String action){
+        OrderCreatedMessage received = null;
+
+        switch (action){
+            case "confirm":
+                received = confirmOrder();
+                break;
+            case "prepare":
+                received = propareOrder();
+                break;
+            case "cancel":
+                received = cancelOrder();
+                break;
+            default:
+                break;
+        }
+
+        if (received != null) {
+            log.info("큐로 보낸 메시지: {}", received);
+            return RabbitResponseDTO.builder()
+                    .isSuccess(true)
+                    .message("성공했습니다.")
+                    .build();
+        } else {
+            log.warn("큐로 보내기 실패한 메시지: {}", received);
+            return RabbitResponseDTO.builder()
+                    .isSuccess(false)
+                    .message("실패했습니다!!")
+                    .build();
+        }
+    }
+
+    // 주문 수락
+    private OrderCreatedMessage confirmOrder() {
+        // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
+        Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
+        OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+
+        received.setStatus(OrderStatus.ORDER_CONFIRMED);
+
+        try {
+            // 메시지 전송
+            rabbitTemplate.convertAndSend("status-change.order-service", received);
+            return received;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 주문 준비
+    private OrderCreatedMessage propareOrder() {
+        // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
+        Object message = rabbitTemplate.receiveAndConvert("order-accepted.order-service");
+        OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+
+        received.setStatus(OrderStatus.ORDER_COOKING);
+
+        try {
+            // 메시지 전송
+            rabbitTemplate.convertAndSend("status-change.order-service", received);
+            return received;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 주문 취소
+    private OrderCreatedMessage cancelOrder() {
+        // 주문 수락이나 주문 생성중 어디서 취소 됬는지 확인 필요함
+        // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
+        Object message = rabbitTemplate.receiveAndConvert("order-accepted.order-service");
+        OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+
+        received.setStatus(OrderStatus.ORDER_CANCELLED);
+
+        try {
+            // 메시지 전송
+            rabbitTemplate.convertAndSend("status-change.order-service", received);
+            return received;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
 
 

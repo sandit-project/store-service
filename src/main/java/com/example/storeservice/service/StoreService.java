@@ -10,6 +10,7 @@ import com.example.storeservice.type.OrderStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,8 +146,8 @@ public class StoreService {
             case "confirm":
                 received = confirmOrder();
                 break;
-            case "prepare":
-                received = propareOrder();
+            case "cooking":
+                received = prepareOrder();
                 break;
             case "cancel":
                 received = cancelOrder();
@@ -172,30 +173,31 @@ public class StoreService {
 
     // 주문 수락
     private OrderCreatedMessage confirmOrder() {
-        // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
-        Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
-        OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
-
-        received.setStatus(OrderStatus.ORDER_CONFIRMED);
-
         try {
+            // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
+            Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
+            OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+
+            received.setStatus(OrderStatus.ORDER_CONFIRMED);
+
             // 메시지 전송
             rabbitTemplate.convertAndSend("status-change.order-service", received);
             return received;
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
 
     // 주문 준비
-    private OrderCreatedMessage propareOrder() {
-        // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
-        Object message = rabbitTemplate.receiveAndConvert("order-accepted.order-service");
-        OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
-
-        received.setStatus(OrderStatus.ORDER_COOKING);
-
+    private OrderCreatedMessage prepareOrder() {
         try {
+            // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
+            Object message = rabbitTemplate.receiveAndConvert("order-accepted.order-service");
+            OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+
+            received.setStatus(OrderStatus.ORDER_COOKING);
+
             // 메시지 전송
             rabbitTemplate.convertAndSend("status-change.order-service", received);
             return received;
@@ -207,13 +209,14 @@ public class StoreService {
     // 주문 취소
     private OrderCreatedMessage cancelOrder() {
         // 주문 수락이나 주문 생성중 어디서 취소 됬는지 확인 필요함
-        // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
-        Object message = rabbitTemplate.receiveAndConvert("order-accepted.order-service");
-        OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
-
-        received.setStatus(OrderStatus.ORDER_CANCELLED);
 
         try {
+            // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
+            Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
+            OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+
+            received.setStatus(OrderStatus.ORDER_CANCELLED);
+
             // 메시지 전송
             rabbitTemplate.convertAndSend("status-change.order-service", received);
             return received;

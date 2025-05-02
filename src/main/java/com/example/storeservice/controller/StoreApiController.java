@@ -5,6 +5,7 @@ import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.service.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/stores")
+@Slf4j
 public class StoreApiController {
 
     private final StoreService storeService;
@@ -26,7 +28,11 @@ public class StoreApiController {
             @RequestParam(required = false) Long lastUid
              ){
         // 지점 목록 가져오기
-        return  storeService.getStoresByCursor(limit, lastUid);
+        System.out.println("lastUid: " + lastUid);
+        System.out.println("limit: " + limit);
+        StoreListResponseDTO test = storeService.getStoresByCursor(limit, lastUid);
+        log.info("lastUid: {}, limit: {}, result: {}", lastUid, limit, test);
+        return  test;
     }
 
     //지점 uid로 지점 조회

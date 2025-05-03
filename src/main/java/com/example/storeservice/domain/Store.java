@@ -34,6 +34,10 @@ public class Store {
         @Column(name = "user_uid")
         private Long managerUid;
 
+        @NotNull(message = "the social uid must be defined.")
+        @Column(name = "social_uid")
+        private Long socialUid;
+
         @NotBlank(message = "the address must be defined.")
         @Column(name = "address")
         private String storeAddress;
@@ -67,6 +71,7 @@ public class Store {
                         .storeUid(this.getStoreUid())
                         .storeName(this.getStoreName())
                         .managerUid(this.getManagerUid())
+                        .socialUid(this.getSocialUid())
                         .storeAddress(this.getStoreAddress())
                         .storePostcode(this.getStorePostcode())
                         .storeLatitude(this.getStoreLatitude())

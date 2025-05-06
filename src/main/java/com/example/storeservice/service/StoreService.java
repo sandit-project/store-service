@@ -139,18 +139,18 @@ public class StoreService {
     }
 
     // 주문 조작 함수
-    public RabbitResponseDTO remoteOrderInQueue(String action){
+    public RabbitResponseDTO remoteOrderInQueue(String action, OrderCreatedMessage message){
         OrderCreatedMessage received = null;
 
         switch (action){
             case "confirm":
-                received = confirmOrder();
+                received = confirmOrder(message);
                 break;
             case "cooking":
-                received = prepareOrder();
+                received = prepareOrder(message);
                 break;
             case "cancel":
-                received = cancelOrder();
+                received = cancelOrder(message);
                 break;
             default:
                 break;
@@ -172,17 +172,17 @@ public class StoreService {
     }
 
     // 주문 수락
-    private OrderCreatedMessage confirmOrder() {
+    private OrderCreatedMessage confirmOrder(OrderCreatedMessage message) {
         try {
             // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
-            Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
-            OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+            // Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
+            // OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
 
-            received.setStatus(OrderStatus.ORDER_CONFIRMED);
+            message.setStatus(OrderStatus.ORDER_CONFIRMED);
 
             // 메시지 전송
-            rabbitTemplate.convertAndSend("status-change.order-service", received);
-            return received;
+            rabbitTemplate.convertAndSend("status-change.order-service", message);
+            return message;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -190,36 +190,36 @@ public class StoreService {
     }
 
     // 주문 준비
-    private OrderCreatedMessage prepareOrder() {
+    private OrderCreatedMessage prepareOrder(OrderCreatedMessage message) {
         try {
             // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
-            Object message = rabbitTemplate.receiveAndConvert("order-accepted.order-service");
-            OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+            // Object message = rabbitTemplate.receiveAndConvert("order-accepted.order-service");
+            // OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
 
-            received.setStatus(OrderStatus.ORDER_COOKING);
+            message.setStatus(OrderStatus.ORDER_COOKING);
 
             // 메시지 전송
-            rabbitTemplate.convertAndSend("status-change.order-service", received);
-            return received;
+            rabbitTemplate.convertAndSend("status-change.order-service", message);
+            return message;
         } catch (Exception e) {
             return null;
         }
     }
 
     // 주문 취소
-    private OrderCreatedMessage cancelOrder() {
+    private OrderCreatedMessage cancelOrder(OrderCreatedMessage message) {
         // 주문 수락이나 주문 생성중 어디서 취소 됬는지 확인 필요함
 
         try {
             // 1. 큐에서 메시지 수동 소비 (ex: order-preparing)
-            Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
-            OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
+            // Object message = rabbitTemplate.receiveAndConvert("order-created.order-service");
+            // OrderCreatedMessage received = objectMapper.convertValue(message, OrderCreatedMessage.class);
 
-            received.setStatus(OrderStatus.ORDER_CANCELLED);
+            message.setStatus(OrderStatus.ORDER_CANCELLED);
 
             // 메시지 전송
-            rabbitTemplate.convertAndSend("status-change.order-service", received);
-            return received;
+            rabbitTemplate.convertAndSend("status-change.order-service", message);
+            return message;
         } catch (Exception e) {
             return null;
         }

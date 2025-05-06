@@ -9,7 +9,8 @@ import lombok.Setter;
 @Getter
 @Builder
 
-public class StoreRequestDTO {
+public class
+StoreRequestDTO {
 
     @NotBlank(message = "지점명을 입력해주세요.")
     private String storeName;

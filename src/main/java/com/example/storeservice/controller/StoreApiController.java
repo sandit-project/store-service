@@ -31,7 +31,7 @@ public class StoreApiController {
         System.out.println("lastUid: " + lastUid);
         System.out.println("limit: " + limit);
         StoreListResponseDTO test = storeService.getStoresByCursor(limit, lastUid);
-        log.info("lastUid: {}, limit: {}, result: {}", lastUid, limit, test);
+        log.info("result: {}",test.getStoreList().get(0).getStoreName());
         return  test;
     }
 

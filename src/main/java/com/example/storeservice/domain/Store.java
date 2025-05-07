@@ -30,11 +30,9 @@ public class Store {
         @Column(name = "store_name")
         private String storeName;
 
-        @NotNull(message = "the manager uid must be defined.")
         @Column(name = "user_uid")
         private Long managerUid;
 
-        @NotNull(message = "the social uid must be defined.")
         @Column(name = "social_uid")
         private Long socialUid;
 

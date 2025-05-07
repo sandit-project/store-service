@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 public class OrderCreatedMessage {
     private String merchantUid;
     private OrderStatus status;
-    private LocalDateTime createdDate;
-    private LocalDateTime reservationDate;
+    private Integer riderUserUid;
+    private Integer riderSocialUid;
+    private String addressStart;
+    private String addressDestination;
+    private LocalDateTime deliveryAcceptTime;
+    private LocalDateTime deliveredTime;
 }

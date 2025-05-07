@@ -30,10 +30,8 @@ public class Store {
         @Column(name = "store_name")
         private String storeName;
 
-        
         @Column(name = "user_uid")
         private Long managerUid;
-
 
         @Column(name = "social_uid")
         private Long socialUid;

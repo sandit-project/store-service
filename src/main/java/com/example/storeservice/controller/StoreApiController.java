@@ -1,5 +1,6 @@
 package com.example.storeservice.controller;
 
+import com.example.storeservice.domain.Store;
 import com.example.storeservice.dto.*;
 import com.example.storeservice.event.OrderCreatedMessage;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
@@ -32,7 +33,7 @@ public class StoreApiController {
         System.out.println("lastUid: " + lastUid);
         System.out.println("limit: " + limit);
         StoreListResponseDTO test = storeService.getStoresByCursor(limit, lastUid);
-        log.info("result: {}",test.getStoreList().get(0).getStoreName());
+        log.info("지점 리스트 : {}",test.getStoreList().get(0).getStoreName());
         return  test;
     }
 
@@ -61,6 +62,8 @@ public class StoreApiController {
     public StoreResponseDTO addStore(@Valid @RequestBody  StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
         return storeService.addStore(storeRequestDTO);
     }
+
+   
     //지점 수정
     @PutMapping("/{storeUid}")
     public  ResponseEntity<StoreResponseDTO> updateStore(@PathVariable(name="storeUid") Long storeUid,

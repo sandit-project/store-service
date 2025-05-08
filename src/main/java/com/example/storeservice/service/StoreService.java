@@ -3,6 +3,7 @@ package com.example.storeservice.service;
 import com.example.storeservice.domain.Store;
 import com.example.storeservice.dto.*;
 import com.example.storeservice.event.OrderCreatedMessage;
+import com.example.storeservice.event.StoreCreatedMessage;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.exception.StoreNotFoundException;
 import com.example.storeservice.repository.StoreRepository;
@@ -10,7 +11,6 @@ import com.example.storeservice.type.OrderStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,7 +84,7 @@ public class StoreService {
         if (storeRepository.existsByStoreName(storeRequestDTO.getStoreName())) {
             throw new StoreAlreadyExistsException(storeRequestDTO.getStoreName());
         }
-
+       /** 직접 DB에 저장
         Store store = Store.builder()
                 .storeName(storeRequestDTO.getStoreName())
                 .managerUid(storeRequestDTO.getManagerUid())
@@ -96,8 +96,31 @@ public class StoreService {
                 .build();
 
         Store saveStore = storeRepository.save(store);//DB에 저장해 줌.
-        return saveStore.toStoreResponseDTO();
+        */
+       // 1) 메세지용 DTO로 변환
+        StoreCreatedMessage msg = StoreCreatedMessage.builder()
+                .storeName(storeRequestDTO.getStoreName())
+                .managerUid(storeRequestDTO.getManagerUid())
+                .storeAddress(storeRequestDTO.getStoreAddress())
+                .storePostcode(storeRequestDTO.getStorePostcode())
+                .storeLatitude(storeRequestDTO.getStoreLatitude())
+                .storeLongitude(storeRequestDTO.getStoreLongitude())
+                .build();
+
+        // 2) RabbitMQ로 발행(로컬테스트용)
+        rabbitTemplate.convertAndSend("store-add.store-service", msg);
+
+        // 3) 즉시 응답 : 임시로 DTO에 입력값만 그대로 리턴
+        return StoreResponseDTO.builder()
+                .storeName(msg.getStoreName())
+                .managerUid(msg.getManagerUid())
+                .storeAddress(msg.getStoreAddress())
+                .storePostcode(msg.getStorePostcode())
+                .storeLatitude(msg.getStoreLatitude())
+                .storeLongitude(msg.getStoreLongitude())
+                .build();
     }
+
 
     //지점 수정
     @Transactional
@@ -118,9 +141,11 @@ public class StoreService {
                 .version(existingStore.getVersion())//버전 증가
                 .build();
         Store saveStore = storeRepository.save(updateStore);
+        rabbitTemplate.convertAndSend("store-update.store-service", saveStore);
         return saveStore.toStoreResponseDTO();
 
     }
+
 
     //지점 상태 변경
     public void updateStatusStore (Long storeUid, String status) throws StoreNotFoundException {
@@ -128,6 +153,7 @@ public class StoreService {
             throw new StoreNotFoundException(storeUid);
         }
         storeRepository.updateStatusByUid(storeUid, status);
+        rabbitTemplate.convertAndSend("store-update.store-service",status);
     }
 
     //지점 삭제
@@ -136,7 +162,9 @@ public class StoreService {
             throw new StoreNotFoundException(storeUid);
         }
         storeRepository.deleteByUid(storeUid);
+        rabbitTemplate.convertAndSend("store-delete.store-service", storeUid);
     }
+
 
     // 주문 조작 함수
     public RabbitResponseDTO remoteOrderInQueue(String action, OrderCreatedMessage message){

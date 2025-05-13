@@ -8,7 +8,9 @@ import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.exception.StoreNotFoundException;
 import com.example.storeservice.repository.StoreRepository;
 import com.example.storeservice.type.OrderStatus;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -28,6 +30,7 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final RabbitTemplate rabbitTemplate; // RabbitMQ 직접 접근용
     private final ObjectMapper objectMapper;
+    private final StoreSqsMessagingService storeSqsMessagingService;
 
     //지점 목록 조회(커서방식)
     @Transactional
@@ -80,7 +83,7 @@ public class StoreService {
     }
 
     //지점 추가
-    public StoreResponseDTO addStore(StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
+    public StoreResponseDTO addStore(@Valid StoreCreatedMessage storeRequestDTO) throws StoreAlreadyExistsException, IOException {
         if (storeRepository.existsByStoreName(storeRequestDTO.getStoreName())) {
             throw new StoreAlreadyExistsException(storeRequestDTO.getStoreName());
         }
@@ -107,8 +110,9 @@ public class StoreService {
                 .storeLongitude(storeRequestDTO.getStoreLongitude())
                 .build();
 
-        // 2) RabbitMQ로 발행(로컬테스트용)
-        rabbitTemplate.convertAndSend("store-add.store-service", msg);
+        // 2) SQS로 발행(로컬테스트용)
+        storeSqsMessagingService.sendAddEvent(msg);
+
 
         // 3) 즉시 응답 : 임시로 DTO에 입력값만 그대로 리턴
         return StoreResponseDTO.builder()
@@ -124,25 +128,37 @@ public class StoreService {
 
     //지점 수정
     @Transactional
-    public StoreResponseDTO updateStore(Long storeUid, StoreRequestDTO storeRequestDTO) throws StoreNotFoundException {
+    public StoreResponseDTO updateStore(Long storeUid, StoreCreatedMessage storeCreatedMessage) throws StoreNotFoundException, JsonProcessingException {
         Store existingStore = storeRepository.findByStoreUid(storeUid)
                 .orElseThrow(() -> new StoreNotFoundException(storeUid));
 
         Store updateStore = Store.builder()
                 .storeUid(existingStore.getStoreUid())
-                .storeName(storeRequestDTO.getStoreName())
-                .managerUid(storeRequestDTO.getManagerUid())
-                .storeAddress(storeRequestDTO.getStoreAddress())
-                .storePostcode(storeRequestDTO.getStorePostcode())
-                .storeLatitude(storeRequestDTO.getStoreLatitude())
-                .storeLongitude(storeRequestDTO.getStoreLongitude())
-                .storeStatus(storeRequestDTO.getStoreStatus())
+                .storeName(storeCreatedMessage.getStoreName())
+                .managerUid(storeCreatedMessage.getManagerUid())
+                .storeAddress(storeCreatedMessage.getStoreAddress())
+                .storePostcode(storeCreatedMessage.getStorePostcode())
+                .storeLatitude(storeCreatedMessage.getStoreLatitude())
+                .storeLongitude(storeCreatedMessage.getStoreLongitude())
+                .storeStatus(storeCreatedMessage.getStoreStatus())
                 .storeCreatedDate(existingStore.getStoreCreatedDate())
                 .version(existingStore.getVersion())//버전 증가
                 .build();
-        Store saveStore = storeRepository.save(updateStore);
-        rabbitTemplate.convertAndSend("store-update.store-service", saveStore);
-        return saveStore.toStoreResponseDTO();
+        // Store saveStore = storeRepository.save(updateStore);
+
+        // 1) 메세지용 DTO로 변환
+        StoreCreatedMessage msg = StoreCreatedMessage.builder()
+                .storeName(storeCreatedMessage.getStoreName())
+                .managerUid(storeCreatedMessage.getManagerUid())
+                .storeAddress(storeCreatedMessage.getStoreAddress())
+                .storePostcode(storeCreatedMessage.getStorePostcode())
+                .storeLatitude(storeCreatedMessage.getStoreLatitude())
+                .storeLongitude(storeCreatedMessage.getStoreLongitude())
+                .build();
+        storeSqsMessagingService.sendUpdateEvent(msg);
+
+        //return saveStore.toStoreResponseDTO();
+        return updateStore.toStoreResponseDTO();
 
     }
 

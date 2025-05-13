@@ -1,5 +1,6 @@
 package com.example.storeservice.dto;
 
+import com.example.storeservice.type.OrderStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,6 +18,6 @@ public class StoreResponseDTO {
     private String  storePostcode;
     private Double  storeLatitude;
     private Double  storeLongitude;
-    private String  storeStatus;
+    private OrderStatus storeStatus;
     private LocalDateTime storeCreatedDate;
 }

@@ -1,10 +1,11 @@
 package com.example.storeservice.controller;
 
-import com.example.storeservice.domain.Store;
 import com.example.storeservice.dto.*;
 import com.example.storeservice.event.OrderCreatedMessage;
+import com.example.storeservice.event.StoreCreatedMessage;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.service.StoreService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,16 +58,16 @@ public class StoreApiController {
 
     //지점 추가
     @PostMapping
-    public StoreResponseDTO addStore(@Valid @RequestBody  StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
-        return storeService.addStore(storeRequestDTO);
+    public StoreResponseDTO addStore(@Valid @RequestBody StoreCreatedMessage storeCreatedMessage) throws StoreAlreadyExistsException, IOException {
+        return storeService.addStore(storeCreatedMessage);
     }
 
    
     //지점 수정
     @PutMapping("/{storeUid}")
     public  ResponseEntity<StoreResponseDTO> updateStore(@PathVariable(name="storeUid") Long storeUid,
-                                         @Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException {
-        StoreResponseDTO response = storeService.updateStore(storeUid,storeRequestDTO);
+                                         @Valid @RequestBody StoreCreatedMessage storeCreatedMessage) throws StoreAlreadyExistsException, JsonProcessingException {
+        StoreResponseDTO response = storeService.updateStore(storeUid,storeCreatedMessage);
         return ResponseEntity.ok(response);
     }
     //지점 삭제

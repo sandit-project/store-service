@@ -1,6 +1,7 @@
 package com.example.storeservice.domain;
 
 import com.example.storeservice.dto.StoreResponseDTO;
+import com.example.storeservice.type.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -54,7 +55,7 @@ public class Store {
 
         @NotBlank(message = "the status must be defined.")
         @Column(name = "status")
-        private String storeStatus;
+        private OrderStatus storeStatus;
 
         @CreatedDate
         @Column(name = "created_date", updatable = false)

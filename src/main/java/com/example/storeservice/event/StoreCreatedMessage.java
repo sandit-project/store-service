@@ -1,5 +1,6 @@
 package com.example.storeservice.event;
 
+import com.example.storeservice.type.OrderStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,5 +16,7 @@ public class StoreCreatedMessage {
     private String  storePostcode;
     private Double  storeLatitude;
     private Double  storeLongitude;
+    private OrderStatus storeStatus;
+
 
 }

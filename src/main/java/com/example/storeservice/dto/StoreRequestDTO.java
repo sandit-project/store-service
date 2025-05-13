@@ -1,5 +1,6 @@
 package com.example.storeservice.dto;
 
+import com.example.storeservice.type.OrderStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -31,6 +32,6 @@ StoreRequestDTO {
     private Double storeLongitude;
 
     @NotBlank(message = "상태값을 입력해주세요.")
-    private String storeStatus;
+    private OrderStatus storeStatus;
 }
 

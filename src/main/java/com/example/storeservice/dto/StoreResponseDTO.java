@@ -20,4 +20,5 @@ public class StoreResponseDTO {
     private Double  storeLongitude;
     private String storeStatus;
     private LocalDateTime storeCreatedDate;
+    private String message;
 }

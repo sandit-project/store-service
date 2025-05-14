@@ -1,6 +1,5 @@
 package com.example.storeservice.service;
 
-import com.example.storeservice.dto.StoreResponseDTO;
 import com.example.storeservice.event.StoreCreatedMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

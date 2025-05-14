@@ -2,7 +2,6 @@ package com.example.storeservice.controller;
 
 import com.example.storeservice.dto.*;
 import com.example.storeservice.event.OrderCreatedMessage;
-import com.example.storeservice.event.StoreCreatedMessage;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
 import com.example.storeservice.service.StoreService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,22 +57,24 @@ public class StoreApiController {
 
     //지점 추가
     @PostMapping
-    public StoreResponseDTO addStore(@Valid @RequestBody StoreCreatedMessage storeCreatedMessage) throws StoreAlreadyExistsException, IOException {
-        return storeService.addStore(storeCreatedMessage);
+    public ResponseEntity<StoreResponseDTO> addStore(@Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
+        StoreResponseDTO response = storeService.addStore(storeRequestDTO);
+        return ResponseEntity.accepted().build();
     }
 
    
     //지점 수정
     @PutMapping("/{storeUid}")
     public  ResponseEntity<StoreResponseDTO> updateStore(@PathVariable(name="storeUid") Long storeUid,
-                                         @Valid @RequestBody StoreCreatedMessage storeCreatedMessage) throws StoreAlreadyExistsException, JsonProcessingException {
-        StoreResponseDTO response = storeService.updateStore(storeUid,storeCreatedMessage);
-        return ResponseEntity.ok(response);
+                                         @Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, JsonProcessingException {
+        StoreResponseDTO response = storeService.updateStore(storeUid,storeRequestDTO);
+        return ResponseEntity.accepted().build();
     }
     //지점 삭제
     @DeleteMapping("/{storeUid}")
-    public void deleteStore(@PathVariable("storeUid") Long storeUid) {
+    public ResponseEntity<Void> deleteStore(@PathVariable("storeUid") Long storeUid) throws JsonProcessingException {
         storeService.deleteStore(storeUid);
+        return ResponseEntity.accepted().build();
     }
 
     //지점 상태 업데이트

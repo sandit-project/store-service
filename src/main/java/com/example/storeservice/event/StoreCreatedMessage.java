@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class StoreCreatedMessage {
+    private Long    storeUid;
     private String  storeName;
     private Long    managerUid;
     private Long    socialUid;
@@ -16,7 +17,7 @@ public class StoreCreatedMessage {
     private String  storePostcode;
     private Double  storeLatitude;
     private Double  storeLongitude;
-    private String storeStatus;
+    private String  storeStatus;
 
 
 }

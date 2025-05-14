@@ -83,7 +83,7 @@ public class StoreService {
     }
 
     //지점 추가
-    public StoreResponseDTO addStore(@Valid StoreCreatedMessage storeRequestDTO) throws StoreAlreadyExistsException, IOException {
+    public StoreResponseDTO addStore(@Valid StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
         if (storeRepository.existsByStoreName(storeRequestDTO.getStoreName())) {
             throw new StoreAlreadyExistsException(storeRequestDTO.getStoreName());
         }
@@ -102,45 +102,49 @@ public class StoreService {
         */
        // 1) 메세지용 DTO로 변환
         StoreCreatedMessage msg = StoreCreatedMessage.builder()
+                .storeUid(null) // 신규등록 이므로 NULL
                 .storeName(storeRequestDTO.getStoreName())
                 .managerUid(storeRequestDTO.getManagerUid())
                 .storeAddress(storeRequestDTO.getStoreAddress())
                 .storePostcode(storeRequestDTO.getStorePostcode())
                 .storeLatitude(storeRequestDTO.getStoreLatitude())
                 .storeLongitude(storeRequestDTO.getStoreLongitude())
+                .storeStatus(storeRequestDTO.getStoreStatus())
                 .build();
 
-        // 2) SQS로 발행(로컬테스트용)
+        // 2) SQS로 발행
         storeSqsMessagingService.sendAddEvent(msg);
 
 
-        // 3) 즉시 응답 : 임시로 DTO에 입력값만 그대로 리턴
+        // 3) 즉시 응답  (DB 반영은 Lamda가 처리)
         return StoreResponseDTO.builder()
+                .storeUid(msg.getStoreUid() == null ? null : msg.getStoreUid())
                 .storeName(msg.getStoreName())
                 .managerUid(msg.getManagerUid())
                 .storeAddress(msg.getStoreAddress())
                 .storePostcode(msg.getStorePostcode())
                 .storeLatitude(msg.getStoreLatitude())
                 .storeLongitude(msg.getStoreLongitude())
+                .storeStatus(msg.getStoreStatus())
                 .build();
     }
 
 
     //지점 수정
     @Transactional
-    public StoreResponseDTO updateStore(Long storeUid, StoreCreatedMessage storeCreatedMessage) throws StoreNotFoundException, JsonProcessingException {
+    public StoreResponseDTO updateStore(Long storeUid, StoreRequestDTO storeRequestDTO) throws StoreNotFoundException, JsonProcessingException {
         Store existingStore = storeRepository.findByStoreUid(storeUid)
                 .orElseThrow(() -> new StoreNotFoundException(storeUid));
 
         Store updateStore = Store.builder()
                 .storeUid(existingStore.getStoreUid())
-                .storeName(storeCreatedMessage.getStoreName())
-                .managerUid(storeCreatedMessage.getManagerUid())
-                .storeAddress(storeCreatedMessage.getStoreAddress())
-                .storePostcode(storeCreatedMessage.getStorePostcode())
-                .storeLatitude(storeCreatedMessage.getStoreLatitude())
-                .storeLongitude(storeCreatedMessage.getStoreLongitude())
-                .storeStatus(storeCreatedMessage.getStoreStatus())
+                .storeName(storeRequestDTO.getStoreName())
+                .managerUid(storeRequestDTO.getManagerUid())
+                .storeAddress(storeRequestDTO.getStoreAddress())
+                .storePostcode(storeRequestDTO.getStorePostcode())
+                .storeLatitude(storeRequestDTO.getStoreLatitude())
+                .storeLongitude(storeRequestDTO.getStoreLongitude())
+                .storeStatus(storeRequestDTO.getStoreStatus())
                 .storeCreatedDate(existingStore.getStoreCreatedDate())
                 .version(existingStore.getVersion())//버전 증가
                 .build();
@@ -148,16 +152,20 @@ public class StoreService {
 
         // 1) 메세지용 DTO로 변환
         StoreCreatedMessage msg = StoreCreatedMessage.builder()
-                .storeName(storeCreatedMessage.getStoreName())
-                .managerUid(storeCreatedMessage.getManagerUid())
-                .storeAddress(storeCreatedMessage.getStoreAddress())
-                .storePostcode(storeCreatedMessage.getStorePostcode())
-                .storeLatitude(storeCreatedMessage.getStoreLatitude())
-                .storeLongitude(storeCreatedMessage.getStoreLongitude())
+                .storeName(storeRequestDTO.getStoreName())
+                .managerUid(storeRequestDTO.getManagerUid())
+                .storeAddress(storeRequestDTO.getStoreAddress())
+                .storePostcode(storeRequestDTO.getStorePostcode())
+                .storeLatitude(storeRequestDTO.getStoreLatitude())
+                .storeLongitude(storeRequestDTO.getStoreLongitude())
+                .storeStatus(storeRequestDTO.getStoreStatus())
                 .build();
+
+        // 2) SQS로 발행
         storeSqsMessagingService.sendUpdateEvent(msg);
 
         //return saveStore.toStoreResponseDTO();
+        // 3)즉시 응답
         return updateStore.toStoreResponseDTO();
 
     }
@@ -173,12 +181,22 @@ public class StoreService {
     }
 
     //지점 삭제
-    public void deleteStore (Long storeUid){
+    public StoreResponseDTO deleteStore (Long storeUid) throws StoreNotFoundException, JsonProcessingException {
         if (!storeRepository.existsById(storeUid)) {
             throw new StoreNotFoundException(storeUid);
         }
-        storeRepository.deleteByUid(storeUid);
-        rabbitTemplate.convertAndSend("store-delete.store-service", storeUid);
+        StoreCreatedMessage msg = StoreCreatedMessage.builder()
+                .storeUid(storeUid)
+                .build();
+
+        storeSqsMessagingService.sendDeleteEvent(msg);
+
+        return StoreResponseDTO.builder()
+                .storeUid(storeUid)
+                .message("삭제 요청을 접수했습니다.")
+                .build();
+
+
     }
 
 

@@ -32,6 +32,6 @@ StoreRequestDTO {
     private Double storeLongitude;
 
     @NotBlank(message = "상태값을 입력해주세요.")
-    private OrderStatus storeStatus;
+    private String storeStatus;
 }
 

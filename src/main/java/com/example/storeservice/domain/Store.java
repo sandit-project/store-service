@@ -55,7 +55,7 @@ public class Store {
 
         @NotBlank(message = "the status must be defined.")
         @Column(name = "status")
-        private OrderStatus storeStatus;
+        private String storeStatus;
 
         @CreatedDate
         @Column(name = "created_date", updatable = false)

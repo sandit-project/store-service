@@ -16,7 +16,7 @@ public class StoreCreatedMessage {
     private String  storePostcode;
     private Double  storeLatitude;
     private Double  storeLongitude;
-    private OrderStatus storeStatus;
+    private String storeStatus;
 
 
 }

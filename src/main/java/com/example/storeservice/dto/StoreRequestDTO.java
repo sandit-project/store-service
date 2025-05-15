@@ -19,7 +19,7 @@ StoreRequestDTO {
     private String storeName;
 
     @NotNull(message = "매니저 uid를 입력해주세요.")
-    private Long managerUid;
+    private Long userUid;
 
     @NotBlank(message = "주소를 입력해주세요.")
     private String storeAddress;

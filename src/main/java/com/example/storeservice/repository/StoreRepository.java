@@ -17,19 +17,13 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     Optional<Store> findByStoreUid(Long storeUid);
 
     //매니저 UID로 지점 조회
-    Optional<Store> findByManagerUid(Long managerUid);
+    Optional<Store> findByUserUid(Long userUid);
 
     // 지점 상태를 업데이트하는 메서드 (예시: 상태 변경)
     @Modifying
     @Transactional
     @Query("UPDATE Store s SET s.storeStatus = :storeStatus WHERE s.storeUid= :uid")
     void updateStatusByUid(@Param("storeUid") Long storeUid, @Param("storeStatus") String storeStatus);
-
-    // 지점 삭제하는 메서드
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM Store s WHERE s.storeUid = :uid")
-    void deleteByUid(@Param("storeUid") Long storeUid);
 
     // 지점 이름이 존재하는지 확인하는 메서드
     boolean existsByStoreName(String storeName);

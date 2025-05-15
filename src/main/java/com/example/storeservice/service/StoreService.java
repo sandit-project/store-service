@@ -75,9 +75,9 @@ public class StoreService {
     }
 
     // 매니저 UID로 지점 UID조회
-    public Long getStoreUidByManagerUid(Long managerUid) {
+    public Long getStoreUidByManagerUid(Long userUid) {
         return storeRepository
-                .findByManagerUid(managerUid)
+                .findByUserUid(userUid)
                 .orElseThrow(()->new NoSuchElementException("매니저 UID에 해당하는 UID를 찾을 수가 없습니다. "))
                 .getStoreUid();
     }
@@ -104,7 +104,7 @@ public class StoreService {
         StoreCreatedMessage msg = StoreCreatedMessage.builder()
                 .storeUid(null) // 신규등록 이므로 NULL
                 .storeName(storeRequestDTO.getStoreName())
-                .managerUid(storeRequestDTO.getManagerUid())
+                .userUid(storeRequestDTO.getUserUid())
                 .storeAddress(storeRequestDTO.getStoreAddress())
                 .storePostcode(storeRequestDTO.getStorePostcode())
                 .storeLatitude(storeRequestDTO.getStoreLatitude())
@@ -120,7 +120,7 @@ public class StoreService {
         return StoreResponseDTO.builder()
                 .storeUid(msg.getStoreUid() == null ? null : msg.getStoreUid())
                 .storeName(msg.getStoreName())
-                .managerUid(msg.getManagerUid())
+                .userUid(msg.getUserUid())
                 .storeAddress(msg.getStoreAddress())
                 .storePostcode(msg.getStorePostcode())
                 .storeLatitude(msg.getStoreLatitude())
@@ -139,7 +139,7 @@ public class StoreService {
         Store updateStore = Store.builder()
                 .storeUid(existingStore.getStoreUid())
                 .storeName(storeRequestDTO.getStoreName())
-                .managerUid(storeRequestDTO.getManagerUid())
+                .userUid(storeRequestDTO.getUserUid())
                 .storeAddress(storeRequestDTO.getStoreAddress())
                 .storePostcode(storeRequestDTO.getStorePostcode())
                 .storeLatitude(storeRequestDTO.getStoreLatitude())
@@ -152,8 +152,9 @@ public class StoreService {
 
         // 1) 메세지용 DTO로 변환
         StoreCreatedMessage msg = StoreCreatedMessage.builder()
+                .storeUid(storeUid)
                 .storeName(storeRequestDTO.getStoreName())
-                .managerUid(storeRequestDTO.getManagerUid())
+                .userUid(storeRequestDTO.getUserUid())
                 .storeAddress(storeRequestDTO.getStoreAddress())
                 .storePostcode(storeRequestDTO.getStorePostcode())
                 .storeLatitude(storeRequestDTO.getStoreLatitude())
@@ -170,16 +171,6 @@ public class StoreService {
 
     }
 
-
-    //지점 상태 변경
-    public void updateStatusStore (Long storeUid, String status) throws StoreNotFoundException {
-        if (!storeRepository.existsById(storeUid)) {
-            throw new StoreNotFoundException(storeUid);
-        }
-        storeRepository.updateStatusByUid(storeUid, status);
-        rabbitTemplate.convertAndSend("store-update.store-service",status);
-    }
-
     //지점 삭제
     public StoreResponseDTO deleteStore (Long storeUid) throws StoreNotFoundException, JsonProcessingException {
         if (!storeRepository.existsById(storeUid)) {
@@ -193,7 +184,7 @@ public class StoreService {
 
         return StoreResponseDTO.builder()
                 .storeUid(storeUid)
-                .message("삭제 요청을 접수했습니다.")
+                .message("상태 변경 요청을 접수했습니다.")
                 .build();
 
 

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class StoreCreatedMessage {
     private Long    storeUid;
     private String  storeName;
-    private Long    managerUid;
+    private Long    userUid;
     private Long    socialUid;
     private String  storeAddress;
     private String  storePostcode;

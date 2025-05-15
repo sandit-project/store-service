@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 public class StoreResponseDTO {
     private Long    storeUid;
     private String  storeName;
-    private Long    managerUid;
+    private Long    userUid;
     private Long    socialUid;
     private String  storeAddress;
     private String  storePostcode;
     private Double  storeLatitude;
     private Double  storeLongitude;
-    private String storeStatus;
+    private String  storeStatus;
     private LocalDateTime storeCreatedDate;
     private String message;
 }

@@ -1,7 +1,6 @@
 package com.example.storeservice.domain;
 
 import com.example.storeservice.dto.StoreResponseDTO;
-import com.example.storeservice.type.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +31,7 @@ public class Store {
         private String storeName;
 
         @Column(name = "user_uid")
-        private Long managerUid;
+        private Long userUid;
 
         @Column(name = "social_uid")
         private Long socialUid;
@@ -69,7 +68,7 @@ public class Store {
                 return StoreResponseDTO.builder()
                         .storeUid(this.getStoreUid())
                         .storeName(this.getStoreName())
-                        .managerUid(this.getManagerUid())
+                        .userUid(this.getUserUid())
                         .socialUid(this.getSocialUid())
                         .storeAddress(this.getStoreAddress())
                         .storePostcode(this.getStorePostcode())

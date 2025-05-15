@@ -43,11 +43,11 @@ public class StoreApiController {
 
     /**
      * 매니저 UID 로 해당 지점 UID,storeName 반환
-     * GET /stores/storeUid?managerUid=123
+     * GET /stores/storeUid?userUid=123
      */
     @GetMapping("/storeUid")
-    public StoreUidResponseDTO getStoreUidByManagerUid(@RequestParam(name = "managerUid") Long managerUid) {
-        Long storeUid = storeService.getStoreUidByManagerUid(managerUid);
+    public StoreUidResponseDTO getStoreUidByManagerUid(@RequestParam(name = "userUid") Long userUid) {
+        Long storeUid = storeService.getStoreUidByManagerUid(userUid);
         String storeName = storeService.viewStore(storeUid).getStoreName();
         return StoreUidResponseDTO.builder()
                 .storeUid(storeUid)
@@ -59,7 +59,7 @@ public class StoreApiController {
     @PostMapping
     public ResponseEntity<StoreResponseDTO> addStore(@Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
         StoreResponseDTO response = storeService.addStore(storeRequestDTO);
-        return ResponseEntity.accepted().build();
+        return ResponseEntity.accepted().body(response);
     }
 
    
@@ -68,19 +68,13 @@ public class StoreApiController {
     public  ResponseEntity<StoreResponseDTO> updateStore(@PathVariable(name="storeUid") Long storeUid,
                                          @Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, JsonProcessingException {
         StoreResponseDTO response = storeService.updateStore(storeUid,storeRequestDTO);
-        return ResponseEntity.accepted().build();
+        return ResponseEntity.accepted().body(response);
     }
     //지점 삭제
     @DeleteMapping("/{storeUid}")
     public ResponseEntity<Void> deleteStore(@PathVariable("storeUid") Long storeUid) throws JsonProcessingException {
         storeService.deleteStore(storeUid);
         return ResponseEntity.accepted().build();
-    }
-
-    //지점 상태 업데이트
-    @PatchMapping("/{storeUid}")
-    public void updateStatusByUid(@PathVariable("storeUid") Long storeUid, @RequestParam("storeStatus") String storeStatus) {
-        storeService.updateStatusStore(storeUid, storeStatus);
     }
 
     @PutMapping("/orders/{action}")

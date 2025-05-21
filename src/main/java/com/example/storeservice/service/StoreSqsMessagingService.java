@@ -19,13 +19,14 @@ public class StoreSqsMessagingService {
     private final SqsClient sqs;
     private final ObjectMapper mapper;
 
-    // SQS 콘솔에서 미리 생성한 큐 URL
-    @Value("${aws.sqs.url.store-add}")
+   // SQS 콘솔에서 미리 생성한 큐 URL
+   @Value("${aws.sqs.url.store-add}")
     private String storeAddQueueUrl;
-    @Value("${aws.sqs.url.store-update}")
+   @Value("${aws.sqs.url.store-update}")
     private String storeUpdateQueueUrl;
-    @Value("${aws.sqs.url.store-delete}")
+   @Value("${aws.sqs.url.store-delete}")
     private String storeDeleteQueueUrl;
+
 
     public void sendAddEvent(StoreCreatedMessage dto) throws JsonProcessingException {
         sendEvent(storeAddQueueUrl, "store-add", dto);

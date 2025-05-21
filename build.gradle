@@ -36,6 +36,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'software.amazon.awssdk:sqs'
+    implementation 'software.amazon.awssdk:sqs:2.20.120'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     // RabbitMQ 관련 의존성 추가

@@ -20,8 +20,27 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'   # 원하는 버전 지정 가능 (예: 'v1.27.3')
+
+      - name: Configure kubeconfig for EKS cluster
+        run: |
+          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name sandit-cluster
+
+      - name: Create Kubernetes Secrets from GitHub Secrets
+        run: |
+          kubectl create secret generic store-service-secrets \
+            --from-literal=SPRING_RABBITMQ_USER=${{ secrets.SPRING_RABBITMQ_USER }} \
+            --from-literal=SPRING_RABBITMQ_PASSWORD=${{ secrets.SPRING_RABBITMQ_PASSWORD }} \
+            --from-literal=STORE_AWS_ACCESS_KEY_ID=${{ secrets.STORE_AWS_ACCESS_KEY_ID }} \
+            --from-literal=STORE_AWS_SECRET_ACCESS_KEY=${{ secrets.STORE_AWS_SECRET_ACCESS_KEY }} \
+            --from-literal=SPRING_DATASOURCE_USER=${{ secrets.SPRING_DATASOURCE_USER }} \
+            --from-literal=SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Log in to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image

@@ -77,6 +77,6 @@ public class Store {
                         .storeStatus(this.getStoreStatus())
                         .storeCreatedDate(this.getStoreCreatedDate())
                         .build();
-
         }
+
 }

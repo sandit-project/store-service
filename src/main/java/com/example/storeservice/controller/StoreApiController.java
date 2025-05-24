@@ -3,6 +3,7 @@ package com.example.storeservice.controller;
 import com.example.storeservice.dto.*;
 import com.example.storeservice.event.OrderCreatedMessage;
 import com.example.storeservice.exception.StoreAlreadyExistsException;
+import com.example.storeservice.repository.StoreRepository;
 import com.example.storeservice.service.StoreService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +22,12 @@ import java.io.IOException;
 public class StoreApiController {
 
     private final StoreService storeService;
+    private final StoreRepository storeRepository;
+
+    @GetMapping
+    public List<CustomerStoreListResponseDTO> getStores() {
+        return storeService.getStores();
+    }
 
     //지점 목록 조회
     @GetMapping("/list")

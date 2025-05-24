@@ -32,6 +32,18 @@ public class StoreService {
     private final ObjectMapper objectMapper;
     private final StoreSqsMessagingService storeSqsMessagingService;
 
+    public List<CustomerStoreListResponseDTO> getStores() {
+        List<Store> stores = storeRepository.findAll();
+        return stores.stream()
+                .map(store -> new CustomerStoreListResponseDTO(
+                        store.getStoreName(),
+                        store.getStoreAddress(),
+                        store.getStoreLatitude(),
+                        store.getStoreLongitude()
+                ))
+                .collect(Collectors.toList());
+    }
+
     //지점 목록 조회(커서방식)
     @Transactional
     public StoreListResponseDTO getStoresByCursor(int limit, Long lastUid) {

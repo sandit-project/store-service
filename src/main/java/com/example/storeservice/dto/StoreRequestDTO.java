@@ -1,17 +1,16 @@
 package com.example.storeservice.dto;
 
-import com.example.storeservice.type.OrderStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Builder
 @Jacksonized
-
+@ToString
 public class
 StoreRequestDTO {
 

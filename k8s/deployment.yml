@@ -32,9 +32,9 @@ spec:
             - containerPort: 9007
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://sandit-mysql:3306/store?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+              value: jdbc:mysql://${MYSQL_IP}:3306/store?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
             - name: SPRING_RABBITMQ_HOST
-              value: $(RABBITMQ_IP)
+              value: ${RABBITMQ_IP}
             - name: SPRING_RABBITMQ_PORT
               value: "5672"
             - name: SQS_URL_STORE_ADD

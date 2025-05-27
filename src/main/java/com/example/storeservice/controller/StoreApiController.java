@@ -67,6 +67,7 @@ public class StoreApiController {
     @PostMapping
     public ResponseEntity<StoreResponseDTO> addStore(@Valid @RequestBody StoreRequestDTO storeRequestDTO) throws StoreAlreadyExistsException, IOException {
         StoreResponseDTO response = storeService.addStore(storeRequestDTO);
+        log.info("지점 등록 요청 정보 : {}",storeRequestDTO.getStoreName());
         return ResponseEntity.accepted().body(response);
     }
 

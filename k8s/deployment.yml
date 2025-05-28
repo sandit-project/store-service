@@ -15,7 +15,7 @@ spec:
         role: main
       containers:
         - name: store-service
-          image: 448049828702.dkr.ecr.ap-northeast-2.amazonaws.com/store-service:latest
+          image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/store-service:latest
           imagePullPolicy: Always
           lifecycle:
             preStop:
@@ -32,17 +32,17 @@ spec:
             - containerPort: 9007
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://${MYSQL_IP}:3306/store?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+              value: jdbc:mysql://$MYSQL_IP:3306/store?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
             - name: SPRING_RABBITMQ_HOST
-              value: ${RABBITMQ_IP}
+              value: $RABBITMQ_IP
             - name: SPRING_RABBITMQ_PORT
               value: "5672"
             - name: SQS_URL_STORE_ADD
-              value: https://sqs.ap-northeast-2.amazonaws.com/448049828702/store-add-queue
+              value: https://sqs.$AWS_REGION.amazonaws.com/$AWS_ACCOUNT_ID/store-add-queue
             - name: SQS_URL_STORE_UPDATE
-              value: https://sqs.ap-northeast-2.amazonaws.com/448049828702/store-update-queue
+              value: https://sqs.$AWS_REGION.amazonaws.com/$AWS_ACCOUNT_ID/store-update-queue
             - name: SQS_URL_STORE_DELETE
-              value: https://sqs.ap-northeast-2.amazonaws.com/448049828702/store-delete-queue
+              value: https://sqs.$AWS_REGION.amazonaws.com/$AWS_ACCOUNT_ID/store-delete-queue
             - name: SPRING_PROFILES_ACTIVE
               value: deploy
             - name: SPRING_RABBITMQ_USER

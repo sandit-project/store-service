@@ -13,6 +13,10 @@ import java.util.Optional;
 
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
+
+    // 해당 매니저가 이미 등록된 지점이 있는지 확인
+    boolean existsByUserUid(Long userUid);
+
     //지점 uid로 지점을 조회하는 메서드.JPA가 메서드 이름을 보고 자동으로 쿼리 생성해 줌.
     Optional<Store> findByStoreUid(Long storeUid);
 

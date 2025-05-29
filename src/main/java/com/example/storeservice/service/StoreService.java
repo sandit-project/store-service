@@ -32,6 +32,11 @@ public class StoreService {
     private final ObjectMapper objectMapper;
     private final StoreSqsMessagingService storeSqsMessagingService;
 
+    // 유저 UID로 지점 존재 여부 조회
+    public boolean isManagerAssigned(Long userUid) {
+        return storeRepository.existsByUserUid(userUid);
+    }
+
     public List<CustomerStoreListResponseDTO> getStores() {
         List<Store> stores = storeRepository.findAll();
         return stores.stream()

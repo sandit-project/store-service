@@ -37,6 +37,14 @@ public class StoreService {
         return storeRepository.existsByUserUid(userUid);
     }
 
+    public List<ManagerMappingDTO> getManagerMapping() {
+        return storeRepository.findAll().stream()
+                .filter(store->store.getUserUid() !=null)
+                .map(store -> new ManagerMappingDTO(store.getUserUid(),store.getStoreName()))
+                .collect(Collectors.toList());
+
+    }
+
     // 지점 전체 조회
     public List<CustomerStoreListResponseDTO> getStores() {
         List<Store> stores = storeRepository.findAll();
@@ -105,19 +113,7 @@ public class StoreService {
         if (storeRepository.existsByStoreName(storeRequestDTO.getStoreName())) {
             throw new StoreAlreadyExistsException(storeRequestDTO.getStoreName());
         }
-       /** 직접 DB에 저장
-        Store store = Store.builder()
-                .storeName(storeRequestDTO.getStoreName())
-                .managerUid(storeRequestDTO.getManagerUid())
-                .storeAddress(storeRequestDTO.getStoreAddress())
-                .storePostcode(storeRequestDTO.getStorePostcode())
-                .storeLatitude(storeRequestDTO.getStoreLatitude())
-                .storeLongitude(storeRequestDTO.getStoreLongitude())
-                .storeStatus(storeRequestDTO.getStoreStatus())
-                .build();
 
-        Store saveStore = storeRepository.save(store);//DB에 저장해 줌.
-        */
        // 1) 메세지용 DTO로 변환
         StoreCreatedMessage msg = StoreCreatedMessage.builder()
                 .storeUid(null) // 신규등록 이므로 NULL
@@ -134,7 +130,7 @@ public class StoreService {
         storeSqsMessagingService.sendAddEvent(msg);
 
 
-        // 3) 즉시 응답  (DB 반영은 Lamda가 처리)
+        // 3) 즉시 응답  (DB 반영은 Lambda가 처리)
         return StoreResponseDTO.builder()
                 .storeUid(msg.getStoreUid() == null ? null : msg.getStoreUid())
                 .storeName(msg.getStoreName())

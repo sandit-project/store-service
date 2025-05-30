@@ -31,10 +31,8 @@ public class Store {
         private String storeName;
 
         @Column(name = "user_uid")
-        private Long userUid;
+        private Long userUid; // 지점 관리자 uid
 
-        @Column(name = "social_uid")
-        private Long socialUid;
 
         @NotBlank(message = "the address must be defined.")
         @Column(name = "address")
@@ -69,7 +67,6 @@ public class Store {
                         .storeUid(this.getStoreUid())
                         .storeName(this.getStoreName())
                         .userUid(this.getUserUid())
-                        .socialUid(this.getSocialUid())
                         .storeAddress(this.getStoreAddress())
                         .storePostcode(this.getStorePostcode())
                         .storeLatitude(this.getStoreLatitude())

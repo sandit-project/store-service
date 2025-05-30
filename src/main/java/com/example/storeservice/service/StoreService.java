@@ -37,6 +37,15 @@ public class StoreService {
         return storeRepository.existsByUserUid(userUid);
     }
 
+    public List<ManagerMappingDTO> getManagerMapping() {
+        return storeRepository.findAll().stream()
+                .filter(store->store.getUserUid() !=null)
+                .map(store -> new ManagerMappingDTO(store.getUserUid(),store.getStoreName()))
+                .collect(Collectors.toList());
+
+    }
+
+    // 지점 전체 조회
     public List<CustomerStoreListResponseDTO> getStores() {
         List<Store> stores = storeRepository.findAll();
         return stores.stream()
@@ -84,7 +93,7 @@ public class StoreService {
 
     }
 
-    // 지점 이름으로 지점 조회
+    // 지점 UID로 지점 조회
     public StoreResponseDTO viewStore(Long storeUid) throws StoreNotFoundException {
         Store store = storeRepository.findByStoreUid(storeUid)
                 .orElseThrow(() -> new StoreNotFoundException(storeUid));
@@ -95,7 +104,7 @@ public class StoreService {
     public Long getStoreUidByManagerUid(Long userUid) {
         return storeRepository
                 .findByUserUid(userUid)
-                .orElseThrow(()->new NoSuchElementException("매니저 UID에 해당하는 UID를 찾을 수가 없습니다. "))
+                .orElseThrow(()->new NoSuchElementException("매니저 UID에 해당하는 지점 UID를 찾을 수가 없습니다. "))
                 .getStoreUid();
     }
 
@@ -104,19 +113,7 @@ public class StoreService {
         if (storeRepository.existsByStoreName(storeRequestDTO.getStoreName())) {
             throw new StoreAlreadyExistsException(storeRequestDTO.getStoreName());
         }
-       /** 직접 DB에 저장
-        Store store = Store.builder()
-                .storeName(storeRequestDTO.getStoreName())
-                .managerUid(storeRequestDTO.getManagerUid())
-                .storeAddress(storeRequestDTO.getStoreAddress())
-                .storePostcode(storeRequestDTO.getStorePostcode())
-                .storeLatitude(storeRequestDTO.getStoreLatitude())
-                .storeLongitude(storeRequestDTO.getStoreLongitude())
-                .storeStatus(storeRequestDTO.getStoreStatus())
-                .build();
 
-        Store saveStore = storeRepository.save(store);//DB에 저장해 줌.
-        */
        // 1) 메세지용 DTO로 변환
         StoreCreatedMessage msg = StoreCreatedMessage.builder()
                 .storeUid(null) // 신규등록 이므로 NULL
@@ -133,7 +130,7 @@ public class StoreService {
         storeSqsMessagingService.sendAddEvent(msg);
 
 
-        // 3) 즉시 응답  (DB 반영은 Lamda가 처리)
+        // 3) 즉시 응답  (DB 반영은 Lambda가 처리)
         return StoreResponseDTO.builder()
                 .storeUid(msg.getStoreUid() == null ? null : msg.getStoreUid())
                 .storeName(msg.getStoreName())
@@ -152,6 +149,7 @@ public class StoreService {
     public StoreResponseDTO updateStore(Long storeUid, StoreRequestDTO storeRequestDTO) throws StoreNotFoundException, JsonProcessingException {
         Store existingStore = storeRepository.findByStoreUid(storeUid)
                 .orElseThrow(() -> new StoreNotFoundException(storeUid));
+
 
         Store updateStore = Store.builder()
                 .storeUid(existingStore.getStoreUid())

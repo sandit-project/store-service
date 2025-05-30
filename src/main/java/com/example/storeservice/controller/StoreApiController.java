@@ -30,6 +30,10 @@ public class StoreApiController {
         response.put("assigned", isAssigned);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/manager-mapping")
+    public List<ManagerMappingDTO> getManagerMapping() {
+        return storeService.getManagerMapping();
+    }
 
 
     @GetMapping

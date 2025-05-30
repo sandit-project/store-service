@@ -37,6 +37,7 @@ public class StoreService {
         return storeRepository.existsByUserUid(userUid);
     }
 
+    // 지점 전체 조회
     public List<CustomerStoreListResponseDTO> getStores() {
         List<Store> stores = storeRepository.findAll();
         return stores.stream()
@@ -84,7 +85,7 @@ public class StoreService {
 
     }
 
-    // 지점 이름으로 지점 조회
+    // 지점 UID로 지점 조회
     public StoreResponseDTO viewStore(Long storeUid) throws StoreNotFoundException {
         Store store = storeRepository.findByStoreUid(storeUid)
                 .orElseThrow(() -> new StoreNotFoundException(storeUid));
@@ -95,7 +96,7 @@ public class StoreService {
     public Long getStoreUidByManagerUid(Long userUid) {
         return storeRepository
                 .findByUserUid(userUid)
-                .orElseThrow(()->new NoSuchElementException("매니저 UID에 해당하는 UID를 찾을 수가 없습니다. "))
+                .orElseThrow(()->new NoSuchElementException("매니저 UID에 해당하는 지점 UID를 찾을 수가 없습니다. "))
                 .getStoreUid();
     }
 
@@ -152,6 +153,7 @@ public class StoreService {
     public StoreResponseDTO updateStore(Long storeUid, StoreRequestDTO storeRequestDTO) throws StoreNotFoundException, JsonProcessingException {
         Store existingStore = storeRepository.findByStoreUid(storeUid)
                 .orElseThrow(() -> new StoreNotFoundException(storeUid));
+
 
         Store updateStore = Store.builder()
                 .storeUid(existingStore.getStoreUid())
